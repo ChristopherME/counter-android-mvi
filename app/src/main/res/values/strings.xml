@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="tv_current_count">Count: %d</string>
+    <string name="btn_increase">Increase count</string>
+    <string name="tv_fragment_a">current fragment:  Counter \ngo to: Fragment B</string>
+    <string name="tv_fragment_b">current fragment:  B \ngo to: Fragment C</string>
+    <string name="tv_fragment_c">current fragment: C \npop to B</string>
+    <string name="tv_fragment_c_2">current fragment: C \npop to Counter</string>
+</resources>
