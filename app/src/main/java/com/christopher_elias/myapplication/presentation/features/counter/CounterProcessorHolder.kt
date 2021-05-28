@@ -1,5 +1,6 @@
 package com.christopher_elias.myapplication.presentation.features.counter
 
+import android.util.Log
 import arrow.core.Either
 import com.christopher_elias.myapplication.domain.CounterRepository
 import com.christopher_elias.myapplication.mvi_core.MviProcessorHolder
@@ -17,6 +18,10 @@ import kotlinx.coroutines.flow.flow
 class CounterProcessorHolder(
     private val repository: CounterRepository
 ) : MviProcessorHolder<CounterAction, CounterResult> {
+
+    init {
+        Log.i(this::class.java.simpleName, "Hello!")
+    }
 
     override fun processAction(action: CounterAction): Flow<CounterResult> {
         return flow {

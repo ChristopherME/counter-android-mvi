@@ -4,11 +4,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.christopher_elias.myapplication.R
-import com.christopher_elias.myapplication.databinding.FragmentHomeBinding
 import com.christopher_elias.myapplication.presentation.base.LifecycleLoggerFragment
 import com.christopher_elias.myapplication.presentation.features.counter.CounterFragment
 import com.christopher_elias.myapplication.utils.addFragmentExt
-import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 /*
  * Created by Christopher Elias on 16/05/2021
@@ -20,13 +18,15 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 class HomeFragment : LifecycleLoggerFragment(R.layout.fragment_home) {
 
-    private val binding by viewBinding(FragmentHomeBinding::bind)
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(
+        Log.i(
             this::class.java.simpleName,
             "Fragments size [Begin]: ${childFragmentManager.fragments.size}"
+        )
+        Log.i(
+            this::class.java.simpleName,
+            "SavedInstance: $savedInstanceState"
         )
         addFragmentExt(
             newFragment = CounterFragment(),

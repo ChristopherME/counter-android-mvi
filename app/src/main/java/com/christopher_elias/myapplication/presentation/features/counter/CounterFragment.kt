@@ -30,9 +30,14 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     MviView<CounterIntent, CounterUiState> {
 
     private val binding by viewBinding(FragmentCounterBinding::bind)
-    private val viewModel by viewModels<CounterViewModel> {
-        CounterViewModelFactory()
-    }
+
+    /* Even though the CounterViewModel can survive config changes & replace fragment (when is added to the backStack)
+     * transactions, the CounterViewModelFactory() will get called everytime this fragment is available after those operations again.
+     * Therefore, all the dependencies created in CounterViewModelFactory, will be re-created and "living" in memory doing nothing...
+     *
+     * It is NOT a memory leak, but it's bad for performance due the extra instances that are not used by any class.
+     */
+    private val viewModel by viewModels<CounterViewModel> { CounterViewModelFactory() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

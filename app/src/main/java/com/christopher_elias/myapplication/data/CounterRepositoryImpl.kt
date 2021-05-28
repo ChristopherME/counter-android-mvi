@@ -18,7 +18,7 @@ class CounterRepositoryImpl(
 ) : CounterRepository {
 
     init {
-        Log.d(this::class.java.simpleName, "Hello! ${this}~")
+        Log.i(this::class.java.simpleName, "Hello! ${this}~")
     }
 
     override suspend fun increment(): Either<CounterException, Int> {

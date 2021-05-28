@@ -26,6 +26,10 @@ class CounterViewModel(
     private val processorHolder: CounterProcessorHolder
 ) : ViewModel(), MviViewModel<CounterIntent, CounterAction, CounterUiState> {
 
+    init {
+        Log.i(this::class.java.simpleName, "Hello!")
+    }
+
     private val _uiState = MutableStateFlow(CounterUiState())
 
     override val uiState: StateFlow<CounterUiState>
@@ -61,6 +65,11 @@ class CounterViewModel(
                     uiState.value.copy(isLoading = false, count = result.currentCount, error = null)
             }
         }
+    }
+
+    override fun onCleared() {
+        Log.i(this::class.java.simpleName, "Bye!")
+        super.onCleared()
     }
 }
 
