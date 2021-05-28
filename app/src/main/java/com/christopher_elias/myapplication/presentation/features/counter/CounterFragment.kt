@@ -15,6 +15,8 @@ import com.christopher_elias.myapplication.utils.clicks
 import com.christopher_elias.myapplication.utils.consumeOnce
 import com.christopher_elias.myapplication.utils.replaceFragmentExt
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -25,7 +27,8 @@ import kotlinx.coroutines.launch
  * Loop Ideas
  * Lima, Peru.
  */
-
+@FlowPreview
+@ExperimentalCoroutinesApi
 class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     MviView<CounterIntent, CounterUiState> {
 
@@ -41,6 +44,16 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        /*
+         * This is causing a memory leak, here's what's happening:
+         * 1. The viewModel.processIntents method is receiving a flow directly from the fragment.
+         * 2. The intents() flow is collected and launched inside viewModelScope.launch {} block.
+         * 3. The CounterFragment navigate to the FragmentB, a replace transaction is performed.
+         * 4. The CounterFragment can't destroy it's view due to the viewModel is collecting it's intents.
+         * And like that, the counter fragment is leaked.
+         *
+         * TODO: Fix memory leak & avoid the fire of the initial intent twice.
+         */
         viewModel.processIntents(intents())
         collectUiState()
         navigation()
@@ -65,10 +78,10 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     private fun initialIntent(): Flow<CounterIntent> = flow { emit(CounterIntent.InitialIntent) }
 
     override fun intents(): Flow<CounterIntent> {
-
         val flowIntents = listOf(
             initialIntent(),
-            binding.btnIncrease.clicks()
+            binding.btnIncrease
+                .clicks()
                 .map { CounterIntent.IncrementCounterIntent }
         )
         return flowIntents.asFlow().flattenMerge(flowIntents.size)

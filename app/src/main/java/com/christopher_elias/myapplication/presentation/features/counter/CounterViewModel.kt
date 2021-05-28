@@ -11,6 +11,8 @@ import com.christopher_elias.myapplication.domain.CounterRepository
 import com.christopher_elias.myapplication.mvi_core.MviViewModel
 import com.christopher_elias.myapplication.utils.toOneTimeEvent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -22,6 +24,8 @@ import kotlinx.coroutines.launch
  * Lima, Peru.
  */
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class CounterViewModel(
     private val processorHolder: CounterProcessorHolder
 ) : ViewModel(), MviViewModel<CounterIntent, CounterAction, CounterUiState> {
