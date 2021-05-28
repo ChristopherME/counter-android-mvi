@@ -8,4 +8,4 @@ package com.christopher_elias.myapplication
  * Lima, Peru.
  */
 
-class CounterException : Exception("Fuck!")
+class CounterException : Exception("Some random error has appeared!")
