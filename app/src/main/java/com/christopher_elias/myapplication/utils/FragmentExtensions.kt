@@ -67,6 +67,7 @@ fun Fragment.addFragmentExt(
  * @param transactionType a [TransactionType] object.
  * @param newFragment the fragment to ADD or REPLACE.
  * @param addToBackStack if true then it will be added to the back stack.
+ * @param fromActivity If true it means the transaction operation will be performed from the container activity, if not will be performed from the current fragment.
  * @param containerId the container id.
  * @param transactionAnimations a [TransactionAnimations] object that will determine the animation to apply to the current transaction.
  */
