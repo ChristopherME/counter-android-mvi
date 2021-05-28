@@ -52,8 +52,7 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
             replaceFragmentExt(
                 newFragment = FragmentB(),
                 addToBackStack = true,
-                fromParent = true,
-                fragmentTag = "FragmentA"
+                fromActivity = true
             )
         }
     }

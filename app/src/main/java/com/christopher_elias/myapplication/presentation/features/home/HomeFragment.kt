@@ -21,7 +21,6 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 class HomeFragment : LifecycleLoggerFragment(R.layout.fragment_home) {
 
     private val binding by viewBinding(FragmentHomeBinding::bind)
-    private val fragmentA = CounterFragment()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,9 +31,8 @@ class HomeFragment : LifecycleLoggerFragment(R.layout.fragment_home) {
         addFragmentExt(
             newFragment = CounterFragment(),
             addToBackStack = false,
-            fromParent = false,
-            containerId = R.id.innerFragmentContainer,
-            fragmentTag = "CounterFragment"
+            fromActivity = false,
+            containerId = R.id.innerFragmentContainer
         )
         Log.d(
             this::class.java.simpleName,

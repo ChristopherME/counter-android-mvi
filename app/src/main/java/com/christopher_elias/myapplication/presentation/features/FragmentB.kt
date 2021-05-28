@@ -29,8 +29,7 @@ class FragmentB : LifecycleLoggerFragment(R.layout.fragment_b) {
             replaceFragmentExt(
                 newFragment = FragmentC(),
                 addToBackStack = true,
-                fromParent = true,
-                fragmentTag = "FragmentB"
+                fromActivity = true
             )
         }
     }

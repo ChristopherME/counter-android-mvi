@@ -20,55 +20,78 @@ fun Fragment.popUntil(
     fragmentTag: String
 ) = parentFragmentManager.popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
+/**
+ * This method will replace the current fragment for the [newFragment].
+ * Therefore, the old fragment that is calling this method will not be visible.
+ */
 fun Fragment.replaceFragmentExt(
     newFragment: Fragment,
     addToBackStack: Boolean,
-    fromParent: Boolean = true,
+    fromActivity: Boolean = true,
     containerId: Int? = null,
-    fragmentTag: String? = null,
     transactionAnimations: TransactionAnimations = TransactionAnimations.NONE
 ) = this.navUtils(
     TransactionType.REPLACE_FRAGMENT,
     newFragment,
     addToBackStack,
-    fromParent,
+    fromActivity,
     containerId,
-    fragmentTag,
     transactionAnimations
 )
 
+/**
+ * This method will add a [newFragment] on top of the current fragment.
+ * Therefore, the current fragment will be visible behind the [newFragment].
+ */
 fun Fragment.addFragmentExt(
     newFragment: Fragment,
     addToBackStack: Boolean,
-    fromParent: Boolean = true,
+    fromActivity: Boolean = true,
     containerId: Int? = null,
-    fragmentTag: String? = null,
     transactionAnimations: TransactionAnimations = TransactionAnimations.NONE
 ) = this.navUtils(
     TransactionType.ADD_FRAGMENT,
     newFragment,
     addToBackStack,
-    fromParent,
+    fromActivity,
     containerId,
-    fragmentTag,
     transactionAnimations
 )
 
+
+/**
+ * Extension for add or replace the fragment to the container.
+ * Add means to put the fragment on top of each other,
+ * replace will replace the whole fragment view.
+ *
+ * @param transactionType a [TransactionType] object.
+ * @param newFragment the fragment to ADD or REPLACE.
+ * @param addToBackStack if true then it will be added to the back stack.
+ * @param containerId the container id.
+ * @param transactionAnimations a [TransactionAnimations] object that will determine the animation to apply to the current transaction.
+ */
 internal fun Fragment.navUtils(
     transactionType: TransactionType,
     newFragment: Fragment,
     addToBackStack: Boolean,
-    fromParent: Boolean = true,
+    fromActivity: Boolean = true,
     containerId: Int? = null,
-    fragmentTag: String? = null,
     transactionAnimations: TransactionAnimations
 ) {
-    val manager = if (fromParent) activity?.supportFragmentManager else childFragmentManager
+    val manager = if (fromActivity) activity?.supportFragmentManager else childFragmentManager
+    Log.i("NavUtils", "is fragmentManager from activity? $fromActivity")
 
+    // This could cause problems if we have a screen that shows a product detail
+    // and at the bottom a list of similar products. If the user clicks in one of the similar products,
+    // another instance of the product detail fragment should have to be added, but the condition
+    // from above wouldn't allow that operation. Solutions:
+    // 1.- Concat the fragment tag name with something else like the productId
+    // 2.- Remove this condition and handle manually that the "same" fragment is not added.
     if (manager?.findFragmentByTag(newFragment::class.java.simpleName) != null) {
-        Log.d("NavUtils", "Fragment already added transaction")
+        Log.w("NavUtils", "${newFragment::class.java.simpleName} already added")
         return
     }
+
     Log.d("NavUtils", "Begin transaction")
     manager?.beginTransaction()?.fragmentStackManager(
         transactionType = transactionType,
