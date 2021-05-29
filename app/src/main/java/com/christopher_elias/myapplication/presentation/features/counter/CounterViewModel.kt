@@ -1,6 +1,5 @@
 package com.christopher_elias.myapplication.presentation.features.counter
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.christopher_elias.myapplication.mvi_core.MviViewModel
@@ -26,16 +25,16 @@ class CounterViewModel(
 ) : ViewModel(), MviViewModel<CounterIntent, CounterAction, CounterUiState> {
 
     init {
-        Log.i(this::class.java.simpleName, "Hello!")
 
         // Trigger the initial intent only once.
         processIntents(CounterIntent.InitialIntent)
+
         // Subscribe to Actions
         subscribeActions()
     }
 
-    private val _actions = Channel<CounterAction>()
-    val actions = _actions.receiveAsFlow()
+    // Im not using ConflatedBroadcastChannel here because I don't need multiple subscribers.
+    private val actions = Channel<CounterAction>()
 
     private val _uiState = MutableStateFlow(CounterUiState())
 
@@ -44,12 +43,11 @@ class CounterViewModel(
 
     override fun processIntents(intent: CounterIntent) {
         viewModelScope.launch {
-            _actions.send(mapIntentToAction(intent = intent))
+            actions.send(mapIntentToAction(intent = intent))
         }
     }
 
     override fun mapIntentToAction(intent: CounterIntent): CounterAction {
-        Log.i(this::class.java.simpleName, "mapIntentToAction: ${intent::class.java.simpleName}!")
         return when (intent) {
             CounterIntent.InitialIntent -> CounterAction.LoadCurrentCount
             CounterIntent.IncrementCounterIntent -> CounterAction.IncrementCount
@@ -58,14 +56,13 @@ class CounterViewModel(
 
     private fun subscribeActions() {
         viewModelScope.launch {
-            actions
+            actions.receiveAsFlow()
                 .flatMapLatest { processorHolder.processAction(action = it) }
                 .collectLatest { reduce(it) }
         }
     }
 
     private fun reduce(result: CounterResult) {
-        Log.i(this::class.java.simpleName, "reduce: $result")
         when (result) {
             CounterResult.Loading -> _uiState.value = uiState.value.copy(isLoading = true)
             is CounterResult.Error -> {
@@ -78,11 +75,6 @@ class CounterViewModel(
                     uiState.value.copy(isLoading = false, count = result.currentCount, error = null)
             }
         }
-    }
-
-    override fun onCleared() {
-        Log.i(this::class.java.simpleName, "Bye!")
-        super.onCleared()
     }
 }
 

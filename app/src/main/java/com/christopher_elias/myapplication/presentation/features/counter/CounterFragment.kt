@@ -1,7 +1,6 @@
 package com.christopher_elias.myapplication.presentation.features.counter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -47,7 +46,7 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
         super.onViewCreated(view, savedInstanceState)
         collectUiState()
         processIntents()
-        navigation()
+        navigationListener()
     }
 
     private fun processIntents() {
@@ -62,7 +61,11 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
         }
     }
 
-    private fun navigation() {
+    /**
+     * IMHO navigation should be outside of the MVI Flow.
+     * That's why this is not consider an "intent".
+     */
+    private fun navigationListener() {
         binding.tvFragmentAtoB.setOnClickListener {
             replaceFragmentExt(
                 newFragment = FragmentB(),
@@ -82,7 +85,6 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     }
 
     override fun render(state: CounterUiState) {
-        Log.i(this::class.java.simpleName, "render with State: $state")
         with(state) {
             binding.progressCounter.isVisible = isLoading
 
