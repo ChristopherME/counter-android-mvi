@@ -2,17 +2,12 @@ package com.christopher_elias.myapplication.presentation.features.counter
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.christopher_elias.myapplication.data.CounterRemoteDataSource
-import com.christopher_elias.myapplication.data.CounterRepositoryImpl
-import com.christopher_elias.myapplication.data_source.CounterRemoteDataSourceImpl
-import com.christopher_elias.myapplication.domain.CounterRepository
 import com.christopher_elias.myapplication.mvi_core.MviViewModel
 import com.christopher_elias.myapplication.utils.toOneTimeEvent
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -32,31 +27,45 @@ class CounterViewModel(
 
     init {
         Log.i(this::class.java.simpleName, "Hello!")
+
+        // Trigger the initial intent only once.
+        processIntents(CounterIntent.InitialIntent)
+        // Subscribe to Actions
+        subscribeActions()
     }
+
+    private val _actions = Channel<CounterAction>()
+    val actions = _actions.receiveAsFlow()
 
     private val _uiState = MutableStateFlow(CounterUiState())
 
     override val uiState: StateFlow<CounterUiState>
         get() = _uiState.asStateFlow()
 
-    override fun processIntents(intents: Flow<CounterIntent>) {
+    override fun processIntents(intent: CounterIntent) {
         viewModelScope.launch {
-            intents
-                .onEach { Log.d("CounterViewModel", "$it") }
-                .map { intent -> mapIntentToAction(intent) }
-                .flatMapLatest { action -> processorHolder.processAction(action) }
-                .collect { result -> reduce(result) }
+            _actions.send(mapIntentToAction(intent = intent))
         }
     }
 
     override fun mapIntentToAction(intent: CounterIntent): CounterAction {
+        Log.i(this::class.java.simpleName, "mapIntentToAction: ${intent::class.java.simpleName}!")
         return when (intent) {
             CounterIntent.InitialIntent -> CounterAction.LoadCurrentCount
             CounterIntent.IncrementCounterIntent -> CounterAction.IncrementCount
         }
     }
 
+    private fun subscribeActions() {
+        viewModelScope.launch {
+            actions
+                .flatMapLatest { processorHolder.processAction(action = it) }
+                .collectLatest { reduce(it) }
+        }
+    }
+
     private fun reduce(result: CounterResult) {
+        Log.i(this::class.java.simpleName, "reduce: $result")
         when (result) {
             CounterResult.Loading -> _uiState.value = uiState.value.copy(isLoading = true)
             is CounterResult.Error -> {
@@ -77,21 +86,3 @@ class CounterViewModel(
     }
 }
 
-class CounterViewModelFactory : ViewModelProvider.Factory {
-    private val remoteDs: CounterRemoteDataSource = CounterRemoteDataSourceImpl(
-        defaultDispatcher = Dispatchers.Default
-    )
-
-    private val repo: CounterRepository = CounterRepositoryImpl(remoteDs)
-
-    private val processorHolder = CounterProcessorHolder(repo)
-
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CounterViewModel::class.java)) {
-            return CounterViewModel(processorHolder) as T
-        }
-
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-
-}

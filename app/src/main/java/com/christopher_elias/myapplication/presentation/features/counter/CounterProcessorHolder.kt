@@ -25,6 +25,7 @@ class CounterProcessorHolder(
 
     override fun processAction(action: CounterAction): Flow<CounterResult> {
         return flow {
+            Log.i(this::class.java.simpleName, "processAction: ${action::class.java.simpleName}")
             emit(CounterResult.Loading)
             when (action) {
                 CounterAction.IncrementCount -> {

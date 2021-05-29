@@ -1,6 +1,7 @@
 package com.christopher_elias.myapplication.presentation.features.counter
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -44,19 +45,15 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*
-         * This is causing a memory leak, here's what's happening:
-         * 1. The viewModel.processIntents method is receiving a flow directly from the fragment.
-         * 2. The intents() flow is collected and launched inside viewModelScope.launch {} block.
-         * 3. The CounterFragment navigate to the FragmentB, a replace transaction is performed.
-         * 4. The CounterFragment can't destroy it's view due to the viewModel is collecting it's intents.
-         * And like that, the counter fragment is leaked.
-         *
-         * TODO: Fix memory leak & avoid the fire of the initial intent twice.
-         */
-        viewModel.processIntents(intents())
         collectUiState()
+        processIntents()
         navigation()
+    }
+
+    private fun processIntents() {
+        intents()
+            .onEach { intent -> viewModel.processIntents(intent) }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun collectUiState() {
@@ -75,11 +72,8 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
         }
     }
 
-    private fun initialIntent(): Flow<CounterIntent> = flow { emit(CounterIntent.InitialIntent) }
-
     override fun intents(): Flow<CounterIntent> {
         val flowIntents = listOf(
-            initialIntent(),
             binding.btnIncrease
                 .clicks()
                 .map { CounterIntent.IncrementCounterIntent }
@@ -88,6 +82,7 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     }
 
     override fun render(state: CounterUiState) {
+        Log.i(this::class.java.simpleName, "render with State: $state")
         with(state) {
             binding.progressCounter.isVisible = isLoading
 
