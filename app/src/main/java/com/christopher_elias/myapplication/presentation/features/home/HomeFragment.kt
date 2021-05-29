@@ -6,7 +6,7 @@ import android.view.View
 import com.christopher_elias.myapplication.R
 import com.christopher_elias.myapplication.presentation.base.LifecycleLoggerFragment
 import com.christopher_elias.myapplication.presentation.features.counter.CounterFragment
-import com.christopher_elias.myapplication.utils.addFragmentExt
+import com.christopher_elias.myapplication.navigation_ext.addFragmentExt
 
 /*
  * Created by Christopher Elias on 16/05/2021

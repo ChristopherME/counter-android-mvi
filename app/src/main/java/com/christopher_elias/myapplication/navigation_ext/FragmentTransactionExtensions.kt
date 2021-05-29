@@ -1,4 +1,4 @@
-package com.christopher_elias.myapplication.utils
+package com.christopher_elias.myapplication.navigation_ext
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction

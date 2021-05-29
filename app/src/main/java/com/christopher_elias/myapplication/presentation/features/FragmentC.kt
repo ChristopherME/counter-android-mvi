@@ -5,8 +5,8 @@ import android.view.View
 import com.christopher_elias.myapplication.R
 import com.christopher_elias.myapplication.databinding.FragmentCBinding
 import com.christopher_elias.myapplication.presentation.base.LifecycleLoggerFragment
-import com.christopher_elias.myapplication.utils.pop
-import com.christopher_elias.myapplication.utils.popUntil
+import com.christopher_elias.myapplication.navigation_ext.pop
+import com.christopher_elias.myapplication.navigation_ext.popUntil
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 /*

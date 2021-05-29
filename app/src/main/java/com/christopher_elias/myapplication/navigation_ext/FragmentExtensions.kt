@@ -1,4 +1,4 @@
-package com.christopher_elias.myapplication.utils
+package com.christopher_elias.myapplication.navigation_ext
 
 import android.util.Log
 import androidx.fragment.app.Fragment

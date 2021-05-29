@@ -13,7 +13,7 @@ import com.christopher_elias.myapplication.presentation.base.LifecycleLoggerFrag
 import com.christopher_elias.myapplication.presentation.features.FragmentB
 import com.christopher_elias.myapplication.utils.clicks
 import com.christopher_elias.myapplication.utils.consumeOnce
-import com.christopher_elias.myapplication.utils.replaceFragmentExt
+import com.christopher_elias.myapplication.navigation_ext.replaceFragmentExt
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import com.christopher_elias.myapplication.R
 import com.christopher_elias.myapplication.presentation.features.home.HomeFragment
-import com.christopher_elias.myapplication.utils.TransactionAnimations
-import com.christopher_elias.myapplication.utils.TransactionType
-import com.christopher_elias.myapplication.utils.fragmentStackManager
+import com.christopher_elias.myapplication.navigation_ext.TransactionAnimations
+import com.christopher_elias.myapplication.navigation_ext.TransactionType
+import com.christopher_elias.myapplication.navigation_ext.fragmentStackManager
 
 class MainActivity : AppCompatActivity() {
 
