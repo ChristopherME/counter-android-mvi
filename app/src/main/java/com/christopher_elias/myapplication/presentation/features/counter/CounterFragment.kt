@@ -2,22 +2,20 @@ package com.christopher_elias.myapplication.presentation.features.counter
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.christopher_elias.myapplication.R
 import com.christopher_elias.myapplication.databinding.FragmentCounterBinding
-import com.christopher_elias.myapplication.mvi_core.MviView
+import com.christopher_elias.myapplication.mvi_core.BaseView.EventReceiver
+import com.christopher_elias.myapplication.navigation_ext.replaceFragmentExt
 import com.christopher_elias.myapplication.presentation.base.LifecycleLoggerFragment
 import com.christopher_elias.myapplication.presentation.features.FragmentB
-import com.christopher_elias.myapplication.utils.clicks
-import com.christopher_elias.myapplication.utils.consumeOnce
-import com.christopher_elias.myapplication.navigation_ext.replaceFragmentExt
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /*
@@ -30,9 +28,11 @@ import kotlinx.coroutines.launch
 @FlowPreview
 @ExperimentalCoroutinesApi
 class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
-    MviView<CounterIntent, CounterUiState> {
+    EventReceiver<CounterIntent> {
 
     private val binding by viewBinding(FragmentCounterBinding::bind)
+
+    private var presenterBinding: Pair<CoroutineScope, Job>? = null
 
     /* Even though the CounterViewModel can survive config changes & replace fragment (when is added to the backStack)
      * transactions, the CounterViewModelFactory() will get called everytime this fragment is available after those operations again.
@@ -44,20 +44,19 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collectUiState()
-        processIntents()
         navigationListener()
+
+        presenterBinding = start { binding.counterView.setModel(it) }
     }
 
-    private fun processIntents() {
-        intents()
-            .onEach { intent -> viewModel.processIntents(intent) }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        presenterBinding?.second?.cancel()
     }
 
-    private fun collectUiState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { render(it) }
+    override fun sendEvent(event: CounterIntent) {
+        with(viewModel) {
+            presenterBinding!!.first.handleEvent(event)
         }
     }
 
@@ -65,43 +64,25 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
      * IMHO navigation should be outside of the MVI Flow.
      * That's why this is not consider an "intent".
      */
+    // TODO(Benoit) I think that it should live in the presenter: https://code.cash.app/android-presenters
     private fun navigationListener() {
-        binding.tvFragmentAtoB.setOnClickListener {
-            replaceFragmentExt(
-                newFragment = FragmentB(),
-                addToBackStack = true,
-                fromActivity = true
-            )
-        }
-    }
-
-    override fun intents(): Flow<CounterIntent> {
-        val flowIntents = listOf(
-            binding.btnIncrease
-                .clicks()
-                .map { CounterIntent.IncrementCounterIntent }
-        )
-        return flowIntents.asFlow().flattenMerge(flowIntents.size)
-    }
-
-    override fun render(state: CounterUiState) {
-        with(state) {
-            binding.progressCounter.isVisible = isLoading
-
-            binding.tvCurrentValue.isVisible = !isLoading
-            binding.tvCurrentValue.text = getString(R.string.tv_current_count, count)
-
-            binding.tvError.isVisible = !isLoading && error != null
-
-            error?.let {
-                it.consumeOnce {
-                    Toast.makeText(
-                        requireContext(),
-                        error.payload?.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        // crashing right now.
+        binding.counterView.findViewById<View>(R.id.tvFragmentAtoB)
+            .setOnClickListener {
+                replaceFragmentExt(
+                    newFragment = FragmentB(),
+                    addToBackStack = true,
+                    fromActivity = true
+                )
             }
+    }
+
+    private fun start(models: (CounterUiState) -> Unit): Pair<CoroutineScope, Job> {
+        val job = Job()
+        val scope = CoroutineScope(viewLifecycleOwner.lifecycleScope.coroutineContext + job)
+        scope.launch {
+            viewModel.models.collect { models(it) }
         }
+        return scope to job
     }
 }
