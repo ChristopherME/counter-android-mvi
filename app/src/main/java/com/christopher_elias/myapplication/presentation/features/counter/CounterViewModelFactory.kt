@@ -23,11 +23,11 @@ class CounterViewModelFactory : ViewModelProvider.Factory {
 
     private val repo: CounterRepository = CounterRepositoryImpl(remoteDs)
 
-    private val processorHolder = CounterProcessorHolder(repo)
+    private val presenter = CounterPresenter(repo)
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CounterViewModel::class.java)) {
-            return CounterViewModel(processorHolder) as T
+            return CounterViewModel(presenter) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class")

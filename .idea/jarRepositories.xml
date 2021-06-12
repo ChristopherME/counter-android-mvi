@@ -31,5 +31,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://jitpack.io" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="snapifact-production" />
+      <option name="name" value="snapifact-production" />
+      <option name="url" value="https://snapifact.office.vip.sjc2b.square/artifactory/square-public/" />
+    </remote-repository>
   </component>
 </project>

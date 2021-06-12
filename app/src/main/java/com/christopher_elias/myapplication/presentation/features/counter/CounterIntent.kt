@@ -11,12 +11,6 @@ import com.christopher_elias.myapplication.mvi_core.MviIntent
  */
 
 sealed class CounterIntent : MviIntent {
-
-    /**
-     * When the user enters the screen the firs thing to do is load the counter.
-     */
-    object InitialIntent : CounterIntent()
-
     /**
      * When the user "clicks" the increment button.
      */
