@@ -63,18 +63,17 @@ class CounterFragment : LifecycleLoggerFragment(R.layout.fragment_counter),
     /**
      * IMHO navigation should be outside of the MVI Flow.
      * That's why this is not consider an "intent".
+     * Same.
      */
     // TODO(Benoit) I think that it should live in the presenter: https://code.cash.app/android-presenters
     private fun navigationListener() {
-        // crashing right now.
-        binding.counterView.findViewById<View>(R.id.tvFragmentAtoB)
-            .setOnClickListener {
-                replaceFragmentExt(
-                    newFragment = FragmentB(),
-                    addToBackStack = true,
-                    fromActivity = true
-                )
-            }
+        binding.counterView.binding.tvFragmentAtoB.setOnClickListener {
+            replaceFragmentExt(
+                newFragment = FragmentB(),
+                addToBackStack = true,
+                fromActivity = true
+            )
+        }
     }
 
     private fun start(models: (CounterUiState) -> Unit): Pair<CoroutineScope, Job> {
